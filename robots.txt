@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://azclips-app.github.io/azclips/sitemap.xml

@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>azclips: Free AI Video Clipper for Windows | Long Videos to Shorts with Claude</title>
+<meta name="description" content="azclips is a free Windows app that turns long videos into short vertical clips with captions. Claude finds the best moments in your podcast, interview or stream, ready for TikTok, Reels and YouTube Shorts.">
+<meta name="keywords" content="azclips, AI video clipper, video to shorts, podcast clips, auto clip, TikTok clips, YouTube Shorts maker, Reels maker, free clipping tool, Windows">
+<link rel="canonical" href="https://azclips-app.github.io/azclips/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="azclips: Long video in. Short clips out.">
+<meta property="og:description" content="Free Windows app. Claude finds the best moments in your long videos and azclips cuts them into vertical clips with captions.">
+<meta property="og:url" content="https://azclips-app.github.io/azclips/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "azclips",
+  "operatingSystem": "Windows 10, Windows 11",
+  "applicationCategory": "MultimediaApplication",
+  "description": "Free Windows app that turns long videos into short vertical clips with captions. Claude picks the best moments.",
+  "softwareVersion": "1.0",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "downloadUrl": "https://github.com/azclips-app/azclips/releases/latest/download/azclips-Windows.zip"
+}
+</script>
+<style>
+  html { color-scheme: light; }
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: a timeline hero (one long video, clips lifted out of it), then a narrow reading column with wide bands for steps and modes. */
+  :root {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --ink: #16181d;
+    --muted: #5d6270;
+    --line: #dfe2e8;
+    --accent: #f2621f;
+    --accent-2: #ffab2e;
+    --on-accent: #1d0c03;
+    --track: #e6e8ee;
+    --good: #1f9d63;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+    --mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1116; --surface: #181b22; --ink: #eef0f4; --muted: #9aa0ae; --line: #2a2e38;
+      --accent: #ff7a3d; --accent-2: #ffb03d; --on-accent: #1d0c03; --track: #232731; --good: #3ecf8e;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1116; --surface: #181b22; --ink: #eef0f4; --muted: #9aa0ae; --line: #2a2e38;
+    --accent: #ff7a3d; --accent-2: #ffb03d; --on-accent: #1d0c03; --track: #232731; --good: #3ecf8e;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); }
+  .wrap { max-width: 1080px; margin: 0 auto;
+          padding-left: max(20px, env(safe-area-inset-left, 0px));
+          padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+  h1 { font-size: clamp(2.6rem, 7vw, 4.6rem); line-height: 1; font-weight: 800; }
+  h2 { font-size: clamp(1.7rem, 3.6vw, 2.4rem); line-height: 1.1; font-weight: 700; }
+  h3 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  a { color: inherit; }
+  .eyebrow { font: 600 0.78rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .muted { color: var(--muted); }
+  section { padding-block: clamp(56px, 9vw, 96px); }
+  section + section { border-top: 1px solid var(--line); }
+
+  /* nav */
+  nav { display: flex; justify-content: space-between; align-items: center; padding-block: 22px; }
+  .logo { font: 800 1.45rem/1 var(--display); letter-spacing: -0.03em; }
+  .logo span { color: var(--accent); }
+  nav a.small { font-weight: 600; font-size: 0.95rem; text-decoration: none; color: var(--muted); }
+  nav a.small:hover { color: var(--ink); }
+
+  /* buttons */
+  .btn { display: inline-flex; align-items: center; gap: 10px; font: 700 1.05rem/1 var(--body);
+         padding: 16px 24px; border-radius: 12px; text-decoration: none; border: 0; cursor: pointer;
+         background: linear-gradient(95deg, var(--accent), var(--accent-2)); color: var(--on-accent);
+         box-shadow: 0 6px 24px -8px color-mix(in srgb, var(--accent) 70%, transparent); transition: transform .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:focus-visible, a:focus-visible { outline: 3px solid var(--accent-2); outline-offset: 3px; }
+  .btn.pending { background: var(--track); color: var(--muted); box-shadow: none; cursor: default; }
+  .btn.pending:hover { transform: none; }
+  .btn svg { width: 20px; height: 20px; }
+  .meta { font: 0.85rem/1.4 var(--mono); color: var(--muted); }
+
+  /* hero */
+  .hero { padding-block: 28px 64px; display: grid; gap: 40px; }
+  .hero-copy { display: grid; gap: 22px; max-width: 760px; }
+  .hero-copy .lead { font-size: clamp(1.1rem, 2vw, 1.3rem); color: var(--muted); max-width: 60ch; }
+  .hero-copy .lead b { color: var(--ink); font-weight: 600; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; }
+
+  /* the timeline: one long video, clips lifted out of it */
+  .stage { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: clamp(18px, 3vw, 28px); display: grid; gap: 22px; }
+  .stage-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .file { font: 600 0.9rem/1.3 var(--mono); }
+  .timeline { position: relative; height: 54px; border-radius: 10px; background: var(--track); overflow: hidden; }
+  .wave { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; padding: 0 6px; }
+  .wave i { flex: 1; background: color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 2px; }
+  .pick { position: absolute; top: 0; bottom: 0; border-radius: 6px;
+          background: color-mix(in srgb, var(--accent) 28%, transparent); border: 2px solid var(--accent); }
+  .pick b { position: absolute; top: -1px; left: 4px; font: 600 0.7rem/1.6 var(--mono); color: var(--accent); }
+  .ticks { display: flex; justify-content: space-between; font: 0.72rem/1 var(--mono); color: var(--muted); margin-top: -12px; font-variant-numeric: tabular-nums; }
+  .phones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 2.5vw, 22px); }
+  .phone { display: grid; gap: 10px; min-width: 0; }
+  .screen { aspect-ratio: 9 / 16; max-width: 100%; border-radius: 14px; position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; }
+  .screen .cap { position: absolute; left: 8%; right: 8%; bottom: 26%; text-align: center;
+                 font: 800 clamp(0.75rem, 2.3vw, 1.15rem)/1.1 var(--display); color: #fff; letter-spacing: 0.01em;
+                 text-shadow: 0 0 3px #000, 0 2px 0 #000, 0 -2px 0 #000, 2px 0 0 #000, -2px 0 0 #000; }
+  .s1 { background: radial-gradient(circle at 50% 38%, #f6b26b 0 16%, transparent 17%), linear-gradient(170deg, #3b2f63, #1b1730 70%); }
+  .s2 { background: radial-gradient(circle at 50% 40%, #8fd1c2 0 15%, transparent 16%), linear-gradient(170deg, #17424a, #0d2026 70%); }
+  .s3 { background: radial-gradient(circle at 50% 38%, #f3a0a0 0 16%, transparent 17%), linear-gradient(170deg, #5a2a2a, #241313 70%); }
+  .phone .row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .score { font: 700 0.75rem/1 var(--mono); padding: 4px 7px; border-radius: 99px; background: var(--good); color: #fff; flex: none; }
+  .phone .t { font-weight: 600; font-size: 0.9rem; line-height: 1.25; min-width: 0; }
+  .phone .meta { font-size: 0.74rem; }
+
+  /* steps */
+  .section-head { display: grid; gap: 12px; margin-bottom: 40px; max-width: 680px; }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .step { display: grid; gap: 10px; align-content: start; }
+  .step .n { font: 800 2.6rem/1 var(--display); color: var(--accent); }
+  .step p { color: var(--muted); }
+  .transcript { margin-top: 36px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+                padding: 18px 20px; font: 0.85rem/1.9 var(--mono); overflow-x: auto; }
+  .transcript div { white-space: nowrap; color: var(--muted); }
+  .transcript .ts { color: var(--muted); opacity: .7; margin-right: 12px; font-variant-numeric: tabular-nums; }
+  .transcript .hit { color: var(--ink); background: color-mix(in srgb, var(--accent) 14%, transparent);
+                     border-left: 3px solid var(--accent); margin-left: -20px; padding-left: 17px; }
+  .transcript .note { color: var(--accent); font-weight: 600; margin-left: 10px; }
+
+  /* modes */
+  .modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .mode { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 28px; display: grid; gap: 14px; align-content: start; }
+  .mode.free { border: 2px solid var(--accent); }
+  .tag { justify-self: start; font: 600 0.72rem/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+         padding: 6px 10px; border-radius: 99px; background: var(--track); color: var(--muted); }
+  .mode.free .tag { background: var(--accent); color: var(--on-accent); }
+  .mode ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); }
+  .price { font: 800 1.9rem/1 var(--display); }
+  .price small { font: 500 0.9rem var(--body); color: var(--muted); margin-left: 6px; }
+
+  /* features */
+  .features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px 28px; }
+  .feature { display: grid; gap: 6px; align-content: start; }
+  .feature p { color: var(--muted); font-size: 0.98rem; }
+
+  /* install */
+  .install { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+  .install ol { margin: 0; padding-left: 22px; display: grid; gap: 14px; }
+  .install li::marker { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+  .warn { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: grid; gap: 10px; }
+  .warn .box { border-radius: 10px; background: var(--track); padding: 16px 18px; display: grid; gap: 6px; font: 0.88rem/1.5 var(--mono); }
+  .warn .box b { font: 600 1rem var(--body); }
+  .warn .box .fake-link { color: var(--accent); font-weight: 600; }
+  .req { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .req span { font: 0.8rem/1 var(--mono); padding: 8px 11px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); }
+
+  /* faq */
+  .faq { display: grid; gap: 0; max-width: 780px; }
+  details { border-bottom: 1px solid var(--line); padding-block: 18px; }
+  summary { cursor: pointer; font-weight: 600; font-size: 1.05rem; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font: 600 1.3rem/1 var(--mono); color: var(--accent); flex: none; }
+  details[open] summary::after { content: "–"; }
+  details p { color: var(--muted); margin-top: 10px; max-width: 65ch; }
+
+  /* final cta */
+  .final { text-align: left; display: grid; gap: 20px; justify-items: start; }
+  footer { border-top: 1px solid var(--line); padding-block: 28px 40px; font-size: 0.85rem; color: var(--muted); display: grid; gap: 6px; }
+
+  @media (max-width: 820px) {
+    .steps, .features { grid-template-columns: minmax(0, 1fr); }
+    .modes, .install { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .phones { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .phone .t { font-size: 0.78rem; }
+    .phone .meta { display: none; }
+    body { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pick { animation: glow 2.6s ease-in-out infinite; }
+    .pick:nth-of-type(2) { animation-delay: .4s; } .pick:nth-of-type(3) { animation-delay: .8s; }
+    @keyframes glow { 50% { background: color-mix(in srgb, var(--accent) 42%, transparent); } }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="logo">az<span>clips</span></div>
+    <a class="small" href="#install">How to install</a>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Free for Windows</div>
+      <h1>Long video in.<br>Short clips out.</h1>
+      <p class="lead">Drop in a podcast, interview or stream. <b>Claude reads the whole thing</b>, finds the moments worth posting, and azclips cuts them into vertical clips with captions, ready for TikTok, Reels and Shorts.</p>
+      <div class="cta">
+        <a class="btn dl" href="#install">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+          <span class="dl-label">Download for Windows</span>
+        </a>
+        <span class="meta">v1.0 · Windows 10 / 11 · 283 MB</span>
+      </div>
+    </div>
+
+    <div class="stage" aria-label="Example: a 58 minute podcast with three clips picked out">
+      <div class="stage-head">
+        <span class="file">podcast-episode-42.mp4</span>
+        <span class="meta">58:12 · 3 clips found</span>
+      </div>
+      <div class="timeline">
+        <div class="wave" id="wave"></div>
+        <div class="pick" style="left: 12%; width: 4%"><b>#2</b></div>
+        <div class="pick" style="left: 41%; width: 3%"><b>#1</b></div>
+        <div class="pick" style="left: 78%; width: 5%"><b>#3</b></div>
+      </div>
+      <div class="ticks"><span>0:00</span><span>14:30</span><span>29:00</span><span>43:40</span><span>58:12</span></div>
+      <div class="phones">
+        <div class="phone">
+          <div class="screen s2"><div class="cap">THEN I CHANGED ONE THING</div></div>
+          <div class="row"><span class="score">91</span><span class="t">One change 10x'd my views</span></div>
+          <span class="meta">23:51 → 24:28 · 37s</span>
+        </div>
+        <div class="phone">
+          <div class="screen s1"><div class="cap">WITH THE LENS CAP ON</div></div>
+          <div class="row"><span class="score">84</span><span class="t">40 minutes of black screen</span></div>
+          <span class="meta">7:02 → 7:31 · 29s</span>
+        </div>
+        <div class="phone">
+          <div class="screen s3"><div class="cap">NOBODY TELLS YOU THIS</div></div>
+          <div class="row"><span class="score">78</span><span class="t">The first 3 seconds decide</span></div>
+          <span class="meta">45:30 → 46:24 · 54s</span>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Claude reads every word, so you don't have to rewatch the hour.</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><h3>Drop in your video</h3>
+        <p>azclips listens and writes down every word with its exact time. This happens on your own computer.</p></div>
+      <div class="step"><span class="n">2</span><h3>Claude picks the moments</h3>
+        <p>Claude looks for strong hooks, stories, punchlines and answers that make sense on their own, and scores each one.</p></div>
+      <div class="step"><span class="n">3</span><h3>Get clips ready to post</h3>
+        <p>Each clip is cut to 9:16 with bold captions burned in, plus a title and a caption with hashtags you can copy.</p></div>
+    </div>
+    <div class="transcript" aria-label="Example transcript with a picked clip">
+      <div><span class="ts">[23:44.1]</span>and honestly I posted every day for two years and nothing happened.</div>
+      <div class="hit"><span class="ts">[23:51.2]</span>Then I changed one thing. <span class="note">← hook · clip #1 starts</span></div>
+      <div class="hit"><span class="ts">[23:53.9]</span>I wrote the first sentence of every video before anything else.</div>
+      <div class="hit"><span class="ts">[24:21.7]</span>If people don't care in three seconds, they scroll away. <span class="note">← payoff · clip ends</span></div>
+      <div><span class="ts">[24:29.0]</span>Okay, let's take a quick break and then we'll get into the gear stuff.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Two ways to use Claude</div>
+      <h2>Start free. Switch to automatic when you're clipping every day.</h2>
+    </div>
+    <div class="modes">
+      <div class="mode free">
+        <span class="tag">Free</span>
+        <div class="price">$0<small>with a free claude.ai account</small></div>
+        <ul>
+          <li>azclips gives you a prompt with the transcript.</li>
+          <li>Paste it into claude.ai and send it.</li>
+          <li>Paste Claude's reply back, and your clips get cut.</li>
+        </ul>
+        <p class="muted">One copy and one paste per video.</p>
+      </div>
+      <div class="mode">
+        <span class="tag">Automatic</span>
+        <div class="price">A few cents<small>per video, with your own API key</small></div>
+        <ul>
+          <li>Add an Anthropic API key once.</li>
+          <li>Drop a video and walk away.</li>
+          <li>You pay Anthropic directly for what you use.</li>
+        </ul>
+        <p class="muted">Get a key at console.anthropic.com.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">What you get</div>
+      <h2>Everything a clip needs before it goes out.</h2>
+    </div>
+    <div class="features">
+      <div class="feature"><h3>Captions burned in</h3><p>Bold, centered, three words at a time, timed to each spoken word.</p></div>
+      <div class="feature"><h3>Three formats</h3><p>Vertical with a blurred background, vertical cropped to the center, or the original shape.</p></div>
+      <div class="feature"><h3>Trim in a click</h3><p>Nudge a clip's start or end by the second and it re-renders right away.</p></div>
+      <div class="feature"><h3>Viral score and reason</h3><p>See why Claude picked each moment and which clip to post first.</p></div>
+      <div class="feature"><h3>Captions to copy</h3><p>A ready-to-post caption with hashtags for every clip, in the video's language.</p></div>
+      <div class="feature"><h3>Your video stays with you</h3><p>Videos never leave your computer. Only the transcript text goes to Claude.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Install</div>
+      <h2>Unzip, double-click, start clipping.</h2>
+    </div>
+    <div class="install">
+      <div>
+        <ol>
+          <li>Download <b>azclips-Windows.zip</b> and unzip it, for example into Documents.</li>
+          <li>Open the folder and double-click <b>azclips.exe</b>.</li>
+          <li>A small black window opens, then azclips opens in your browser. Keep the black window open while you work. Close it to quit.</li>
+          <li>Your first video takes a bit longer while azclips downloads its speech model (about 150 MB).</li>
+        </ol>
+        <div class="req"><span>Windows 10 / 11 (64-bit)</span><span>Internet connection</span><span>~1 GB free space</span></div>
+      </div>
+      <div class="warn">
+        <h3>Seeing a blue warning?</h3>
+        <p class="muted">Windows shows this for apps without a paid signing certificate. Click <b>More info</b>, then <b>Run anyway</b>.</p>
+        <div class="box">
+          <b>“Windows protected your PC”</b>
+          <span>1. Click <span class="fake-link">More info</span></span>
+          <span>2. Click <span class="fake-link">Run anyway</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Questions</div>
+      <h2>Good to know</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Does it work on Mac or my phone?</summary>
+        <p>Not yet. azclips runs on Windows 10 and 11 for now.</p></details>
+      <details><summary>What kind of videos work best?</summary>
+        <p>Videos where people talk: podcasts, interviews, streams, talks, lessons and vlogs. Claude picks clips by reading what's said, so videos with little speech, like gaming without commentary or music, give it much less to work with.</p></details>
+      <details><summary>Is it really free?</summary>
+        <p>Yes. The app is free, and the free mode uses a free claude.ai account. Automatic mode uses your own Anthropic API key, which costs a few cents per video, paid to Anthropic.</p></details>
+      <details><summary>How long does it take?</summary>
+        <p>Most of the time goes into turning speech into text on your computer. On a typical laptop, a one-hour video takes roughly 10 to 40 minutes, then a few seconds per clip.</p></details>
+      <details><summary>Which languages does it support?</summary>
+        <p>It detects the language automatically and works with English, Urdu, Hindi, Arabic, Spanish, French, German, Portuguese and many more. Titles and captions come back in the video's own language.</p></details>
+      <details><summary>Can I clip other people's videos?</summary>
+        <p>Only upload videos you made or have permission to use. azclips is built for creators clipping their own content.</p></details>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap final">
+    <h2>Your next 10 clips are already in your last video.</h2>
+    <a class="btn dl" href="#install">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+      <span class="dl-label">Download for Windows</span>
+    </a>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span><b>azclips</b> v1.0 · Clip picking by Claude, made by Anthropic. azclips is an independent app.</span>
+    <span>Includes FFmpeg (ffmpeg.org), licensed under the GPL.</span>
+  </footer>
+</div>
+
+<script>
+  // Set this to the zip's download link (Google Drive or GitHub Releases).
+  const DOWNLOAD_URL = "https://github.com/azclips-app/azclips/releases/latest/download/azclips-Windows.zip";
+
+  document.querySelectorAll(".btn.dl").forEach(btn => {
+    if (DOWNLOAD_URL) {
+      btn.href = DOWNLOAD_URL;
+      btn.target = "_blank";
+      btn.rel = "noopener";
+    } else {
+      btn.classList.add("pending");
+      btn.querySelector(".dl-label").textContent = "Download link coming soon";
+      btn.removeAttribute("href");
+      btn.setAttribute("aria-disabled", "true");
+    }
+  });
+
+  // Speech-like waveform for the hero timeline.
+  const wave = document.getElementById("wave");
+  let seed = 7;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 120; i++) {
+    const bar = document.createElement("i");
+    const talk = Math.sin(i / 6) * 0.25 + 0.55;
+    bar.style.height = Math.round(12 + rnd() * 70 * talk) + "%";
+    wave.appendChild(bar);
+  }
+</script>
+
+</body>
+</html>
